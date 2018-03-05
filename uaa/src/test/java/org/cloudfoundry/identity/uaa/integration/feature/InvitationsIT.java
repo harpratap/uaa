@@ -96,12 +96,19 @@ public class InvitationsIT {
 
     private String scimToken;
     private String loginToken;
+    private String testInviteEmail;
 
     @Before
     public void setup() throws Exception {
         scimToken = testClient.getOAuthAccessToken("admin", "adminsecret", "client_credentials", "scim.read,scim.write,clients.admin");
         loginToken = testClient.getOAuthAccessToken("login", "loginsecret", "client_credentials", "oauth.login");
         screenShootRule.setWebDriver(webDriver);
+
+        testInviteEmail = "testinvite@test.org";
+        String userId = IntegrationTestUtils.getUserIdByField(scimToken, baseUrl, "simplesamlphp", "email", testInviteEmail);
+        if (userId != null) {
+            IntegrationTestUtils.deleteUser(scimToken, baseUrl, userId);
+        }
     }
 
     @Before
@@ -189,10 +196,9 @@ public class InvitationsIT {
     @Test
     public void acceptInvitation_for_samlUser() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
-        String email = "testinvite@test.org";
-        String code = createInvitation(email, email, "http://localhost:8080/app/", "simplesamlphp");
+        String code = createInvitation(testInviteEmail, testInviteEmail, "http://localhost:8080/app/", "simplesamlphp");
 
-        String invitedUserId = IntegrationTestUtils.getUserIdByField(scimToken, baseUrl, "simplesamlphp", "email", email);
+        String invitedUserId = IntegrationTestUtils.getUserIdByField(scimToken, baseUrl, "simplesamlphp", "email", testInviteEmail);
         IntegrationTestUtils.createIdentityProvider("simplesamlphp", true, baseUrl, serverRunning);
 
         webDriver.get(baseUrl + "/invitations/accept?code=" + code);
