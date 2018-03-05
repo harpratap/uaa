@@ -109,8 +109,9 @@ generateDocs {
 
 integrationTest {
   filter {
-    includeTestsMatching "org.cloudfoundry.identity.uaa.integration.*"
-    includeTestsMatching "*IT"
+    //    includeTestsMatching "org.cloudfoundry.identity.uaa.integration.*"
+//    includeTestsMatching "org.cloudfoundry.identity.uaa.integration.feature.ResetPasswordIT"
+    includeTestsMatching "org.cloudfoundry.identity.uaa.integration.feature.InvitationsIT"
   }
 }
 
