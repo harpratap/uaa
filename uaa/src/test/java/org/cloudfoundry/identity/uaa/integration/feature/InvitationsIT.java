@@ -201,9 +201,13 @@ public class InvitationsIT {
         webDriver.findElement(By.name("username")).sendKeys("user_only_for_invitations_test");
         webDriver.findElement(By.name("password")).sendKeys("saml");
         WebElement loginButton = webDriver.findElement(By.xpath("//input[@value='Login']"));
+
+        screenShootRule.debugPage("invitationsItTest", "before_click");
         loginButton.click();
+        screenShootRule.debugPage("invitationsItTest", "after_click");
+
         //wait until UAA page has loaded
-        new WebDriverWait(webDriver, 45).until(ExpectedConditions.presenceOfElementLocated(By.id("application_authorization")));
+        webDriver.findElement(By.id("application_authorization"));
         String acceptedUsername = IntegrationTestUtils.getUsernameById(scimToken, baseUrl, invitedUserId);
         //webdriver follows redirects so we should be on the UAA authorization page
         assertEquals("user_only_for_invitations_test", acceptedUsername);
