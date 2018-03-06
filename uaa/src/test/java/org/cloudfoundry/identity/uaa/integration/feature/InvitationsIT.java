@@ -129,6 +129,9 @@ public class InvitationsIT {
         webDriver.get(appUrl + "/j_spring_security_logout");
         webDriver.get("http://simplesamlphp.cfapps.io/module.php/core/authenticate.php?as=example-userpass&logout");
         webDriver.manage().deleteAllCookies();
+
+        webDriver.get("http://localhost:8080/app/");
+        webDriver.manage().deleteAllCookies();
     }
 
     @Test
