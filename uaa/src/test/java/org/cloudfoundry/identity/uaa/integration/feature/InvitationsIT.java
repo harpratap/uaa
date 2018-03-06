@@ -13,6 +13,7 @@
 package org.cloudfoundry.identity.uaa.integration.feature;
 
 import com.dumbster.smtp.SimpleSmtpServer;
+import com.google.common.collect.Lists;
 import org.cloudfoundry.identity.uaa.ServerRunning;
 import org.cloudfoundry.identity.uaa.codestore.ExpiringCode;
 import org.cloudfoundry.identity.uaa.constants.OriginKeys;
@@ -192,24 +193,9 @@ public class InvitationsIT {
     public void acceptInvitation_for_samlUser() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
 
-        IntegrationTestUtils.createIdentityProvider("simplesamlphp", true, baseUrl, serverRunning);
-
-        webDriver.get(baseUrl + "/login");
-        webDriver.findElement(By.linkText("Login with Simple SAML PHP(simplesamlphp)")).click();
-        webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
-        webDriver.findElement(By.name("username")).clear();
-        webDriver.findElement(By.name("username")).sendKeys("user_only_for_invitations_test");
-        webDriver.findElement(By.name("password")).sendKeys("saml");
-        webDriver.findElement(By.xpath("//input[@value='Login']")).click();
-        webDriver.findElement(By.xpath("/html/body/div[1]/div[1]/div[1]/div/div/span")).click();
-        webDriver.findElement(By.linkText("Account Settings")).click();
-        try {
-            webDriver.findElement(By.linkText("Revoke Access")).click();
-            webDriver.findElement(By.xpath("//*[@id=\"app-scrim\"]/div/div[2]/button[2]")).click();
-        } catch (Exception ex) {
-        }
-        webDriver.get(baseUrl + "/logout.do");
-
+        BaseClientDetails appClient = IntegrationTestUtils.getClient(scimToken, baseUrl, "app");
+        appClient.setAutoApproveScopes(Lists.newArrayList("openid"));
+        IntegrationTestUtils.updateClient(baseUrl, scimToken, appClient);
 
         String code = createInvitation(testInviteEmail, testInviteEmail, "http://localhost:8080/app/", "simplesamlphp");
 
