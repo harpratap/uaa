@@ -192,6 +192,8 @@ public class InvitationsIT {
     public void acceptInvitation_for_samlUser() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
 
+        IntegrationTestUtils.createIdentityProvider("simplesamlphp", true, baseUrl, serverRunning);
+
         webDriver.get(baseUrl + "/login");
         webDriver.findElement(By.linkText("Login with Simple SAML PHP(simplesamlphp)")).click();
         webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
