@@ -30,8 +30,6 @@ import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -49,6 +47,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import static org.cloudfoundry.identity.uaa.integration.util.IntegrationTestUtils.getZoneAdminToken;
@@ -105,10 +104,6 @@ public class InvitationsIT {
         screenShootRule.setWebDriver(webDriver);
 
         testInviteEmail = "testinvite@test.org";
-        String userId = IntegrationTestUtils.getUserIdByField(scimToken, baseUrl, "simplesamlphp", "email", testInviteEmail);
-        if (userId != null) {
-            IntegrationTestUtils.deleteUser(scimToken, baseUrl, userId);
-        }
     }
 
     @Before
@@ -196,6 +191,24 @@ public class InvitationsIT {
     @Test
     public void acceptInvitation_for_samlUser() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
+
+        webDriver.get(baseUrl + "/login");
+        webDriver.findElement(By.linkText("Login with Simple SAML PHP(simplesamlphp)")).click();
+        webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
+        webDriver.findElement(By.name("username")).clear();
+        webDriver.findElement(By.name("username")).sendKeys("user_only_for_invitations_test");
+        webDriver.findElement(By.name("password")).sendKeys("saml");
+        webDriver.findElement(By.xpath("//input[@value='Login']")).click();
+        webDriver.findElement(By.xpath("/html/body/div[1]/div[1]/div[1]/div/div/span")).click();
+        webDriver.findElement(By.linkText("Account Settings")).click();
+        try {
+            webDriver.findElement(By.linkText("Revoke Access")).click();
+            webDriver.findElement(By.xpath("//*[@id=\"app-scrim\"]/div/div[2]/button[2]")).click();
+        } catch (Exception ex) {
+        }
+        webDriver.get(baseUrl + "/logout.do");
+
+
         String code = createInvitation(testInviteEmail, testInviteEmail, "http://localhost:8080/app/", "simplesamlphp");
 
         String invitedUserId = IntegrationTestUtils.getUserIdByField(scimToken, baseUrl, "simplesamlphp", "email", testInviteEmail);
@@ -211,6 +224,7 @@ public class InvitationsIT {
         screenShootRule.debugPage("invitationsItTest", "before_click");
         loginButton.click();
         screenShootRule.debugPage("invitationsItTest", "after_click");
+
 
         //wait until UAA page has loaded
         webDriver.findElement(By.id("application_authorization"));
