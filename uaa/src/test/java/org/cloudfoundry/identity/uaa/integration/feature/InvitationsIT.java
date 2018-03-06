@@ -48,7 +48,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import static org.cloudfoundry.identity.uaa.integration.util.IntegrationTestUtils.getZoneAdminToken;
@@ -73,6 +72,9 @@ public class InvitationsIT {
 
     @Rule
     public ScreenshotOnFail screenShootRule = new ScreenshotOnFail();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(3);
 
     @Autowired
     WebDriver webDriver;
@@ -194,6 +196,7 @@ public class InvitationsIT {
         webDriver.get(baseUrl + "/logout.do");
 
         BaseClientDetails appClient = IntegrationTestUtils.getClient(scimToken, baseUrl, "app");
+        appClient.setScope(Lists.newArrayList("cloud_controller.read", "password.write", "scim.userids", "cloud_controller.write", "openid", "organizations.acme"));
         appClient.setAutoApproveScopes(Lists.newArrayList("openid"));
         IntegrationTestUtils.updateClient(baseUrl, scimToken, appClient);
 
