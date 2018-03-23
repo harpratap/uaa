@@ -27,6 +27,10 @@ dependencies {
 
 apply from: file('build_properties.gradle')
 
+configurations.all {
+   exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+}
+
 processResources {
   //maven replaces project.artifactId in the log4j.properties file
   //https://www.pivotaltracker.com/story/show/74344574
